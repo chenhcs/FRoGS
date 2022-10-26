@@ -210,6 +210,7 @@ def inference_testset(classifier, cpd_test):
                 test_input_l = sigvec_all[test_input_idx_l]
                 test_input_r = sigvec_all[test_input_idx_r]
                 scores = classifier.predict([test_input_l, test_input_r])
+                scores = 1 / (1 + np.exp(-scores))
                 genes = []
                 max_scores = []
                 for k in tgt_idx:
@@ -223,7 +224,7 @@ def inference_testset(classifier, cpd_test):
                 top10 = topgenes[:10].copy()
                 top100 = topgenes[:100].copy()
                 fw = open(outdir + cpd + cl + '_' + perttype + '.txt', 'w')
-                fw.write('gene\trank\tlogit\n')
+                fw.write('gene\trank\tscore\n')
                 for i in range(len(topgenes)):
                     fw.write(topgenes[i].split('@')[0] + '\t' + str(i+1) + '\t' + str(rankedscores[i]) + '\n')
                 fw.close()
@@ -232,7 +233,7 @@ def inference_testset(classifier, cpd_test):
                         intop10 += 1
                     if t in top100:
                         intop100 += 1
-                print('top10:', intop10, 'top100:', intop100)
+                print(cl, 'top10:', intop10, 'top100:', intop100)
 
 def compute_list_emb(glist):
     '''Compute the vector representation (embedding) for an input gene list
@@ -284,7 +285,7 @@ def compute_list_emb(glist):
     return np.sum(concatenated_mat * gene_weight, axis=0) / np.clip(np.sum(gene_weight), 1e-100, None)
 
 args = parse_args()
-cpdlist_file, target_file, sig_file, perttype, emb_go, emb_archs4, outdir, modeldir = args.cpdlist_file, args.target_file, args.sig_file, args.perttype, args.emb_go, args.emb_archs4, args.outdir, args.modeldir 
+cpdlist_file, target_file, sig_file, perttype, emb_go, emb_archs4, outdir, modeldir = args.cpdlist_file, args.target_file, args.sig_file, args.perttype, args.emb_go, args.emb_archs4, args.outdir, args.modeldir
 
 with open(emb_archs4, mode='r') as infile:
     reader = csv.reader(infile)

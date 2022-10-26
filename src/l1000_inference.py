@@ -27,8 +27,6 @@ def parse_args():
                         help='Gene embeddings learned from GO annotations')
     parser.add_argument('--emb_archs4', default='../data/gene_vec_archs4_256.csv',
                         help='Gene embeddings learned from archs4 gene expression experiments')
-    parser.add_argument('--modeldir', default='../saved_model/',
-                        help='Path to a directory where the pretrained models are saved')
     parser.add_argument('--outdir', default='../results/',
                         help='Path to a directory to save prediction lists')
     return parser.parse_args()
@@ -147,7 +145,7 @@ def infer_new(classifier_0, classifier_1, classifier_2, cpd_test):
             topgenes = genes[sortidx]
             rankedscores = max_scores[sortidx]
             fw = open(outdir + cpd + cl + '_' + perttype + '.txt', 'w')
-            fw.write('gene\trank\tlogit\n')
+            fw.write('gene\trank\tscore\n')
             for i in range(len(topgenes)):
                 fw.write(topgenes[i].split('@')[0] + '\t' + str(i+1) + '\t' + str(rankedscores[i]) + '\n')
             fw.close()
@@ -202,7 +200,7 @@ def compute_list_emb(glist):
     return np.sum(concatenated_mat * gene_weight, axis=0) / np.clip(np.sum(gene_weight), 1e-100, None)
 
 args = parse_args()
-cpdlist_file, sig_file, perttype, emb_go, emb_archs4, modeldir, outdir = args.cpdlist_file, args.sig_file, args.perttype, args.emb_go, args.emb_archs4, args.modeldir, args.outdir
+cpdlist_file, sig_file, perttype, emb_go, emb_archs4, outdir = args.cpdlist_file, args.sig_file, args.perttype, args.emb_go, args.emb_archs4, args.outdir
 
 with open(emb_archs4, mode='r') as infile:
     reader = csv.reader(infile)
@@ -286,7 +284,7 @@ classifier_0.compile(
     optimizer=optimizer,
     loss=[losses.BinaryCrossentropy(from_logits=True)]
 )
-classifier_0.load_weights(modeldir + 'FEGS_Broad_' + perttype + '_0/ckpt')
+classifier_0.load_weights('../saved_model/FEGS_Broad_' + perttype + '_0/ckpt')
 
 classifier_1= get_model(fp_dim)
 optimizer = keras.optimizers.Adam()
@@ -294,7 +292,7 @@ classifier_1.compile(
     optimizer=optimizer,
     loss=[losses.BinaryCrossentropy(from_logits=True)]
 )
-classifier_1.load_weights(modeldir + 'FEGS_Broad_' + perttype + '_1/ckpt')
+classifier_1.load_weights('../saved_model/FEGS_Broad_' + perttype + '_1/ckpt')
 
 classifier_2= get_model(fp_dim)
 optimizer = keras.optimizers.Adam()
@@ -302,7 +300,7 @@ classifier_2.compile(
     optimizer=optimizer,
     loss=[losses.BinaryCrossentropy(from_logits=True)]
 )
-classifier_2.load_weights(modeldir + 'FEGS_Broad_' + perttype + '_2/ckpt')
+classifier_2.load_weights('../saved_model/FEGS_Broad_' + perttype + '_2/ckpt')
 
 cpd_test = []
 with open(cpdlist_file) as fr:
