@@ -43,7 +43,7 @@ Before using the script, the following files need to be prepared.
     Each file contains three columns, the first column lists gene IDs, the second column indicates the rankings of genes, the last column indicates the predicted scores of the model for the compound gene pair. The higher the ranking, the more likely the gene will be targeted by the compound in the cell line.
 
 ### Test pretrained models on other compounds
-For each perturbagen type (shRNA or cDNA), three models trained on all the Broad's target annotations are provided in the `saved_model` directory. Run the following script under the src directory to make predictions for compounds without Broad's target annotations.
+For each perturbagen type (shRNA or cDNA), three models trained on all the Broad's target annotations are provided in the `saved_model` directory. Run the following script under the src directory to make predictions for compounds without Broad's target annotations combining the three models.
 ```
 python l1000_inference.py
 ```
