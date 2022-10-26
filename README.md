@@ -69,6 +69,7 @@ python gene_vec_model.py -h
 
     A comma separated file where each line indicates a gene embedding. The first item in the line is the gene ID, following by a list of float numbers which is the embedding representation of the gene.
 
+### Generate gene signature embeddings
 Use the following command to run examples of generating gene signature embeddings from embeddings of individual genes:
 ```
 python signature_embedding.py
