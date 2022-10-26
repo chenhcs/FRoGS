@@ -12,7 +12,7 @@ import argparse
 def parse_args():
     parser = argparse.ArgumentParser(description='Train gene embeddings')
     parser.add_argument('--datatype', default='go',
-                        help='The type of data the gene embeddings learned from. go or archs4')
+                        help='Type of data from which the gene embeddings learned. go or archs4')
     parser.add_argument('--association_file', default='../data/go_gene_association.txt',
                         help='Path to a file containing GO term gene associations or ARCHS4 experiments gene associations')
     parser.add_argument('--outfile', default='../data/gene_vec_go.csv',

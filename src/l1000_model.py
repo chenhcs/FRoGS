@@ -18,7 +18,7 @@ import argparse
 def parse_args():
     parser = argparse.ArgumentParser(description='Train l1000 model')
     parser.add_argument('--cpdlist_file', default='../data/compound_list_shRNA.txt',
-                        help='Path to a file the lists the compounds for cross validation')
+                        help='Path to a file that lists the compounds for cross validation')
     parser.add_argument('--target_file', default='../data/cpd_gene_pairs.csv',
                         help='Path to a file containing target annotations of compounds')
     parser.add_argument('--sig_file', default='../data/L1000_PhaseI_and_II.csv',
@@ -26,13 +26,13 @@ def parse_args():
     parser.add_argument('--perttype', default='shRNA',
                         help='Perturbagen type of gene signatures to use. cDNA or shRNA')
     parser.add_argument('--emb_go', default='../data/gene_vec_go_256.csv',
-                        help='Gene embeddings learned from GO annotations.')
+                        help='Gene embeddings learned from GO annotations')
     parser.add_argument('--emb_archs4', default='../data/gene_vec_archs4_256.csv',
-                        help='Gene embeddings learned from archs4 gene expression experiments.')
+                        help='Gene embeddings learned from archs4 gene expression experiments')
     parser.add_argument('--outdir', default='../results/',
-                        help='Path to a directory to save prediction list.')
+                        help='Path to a directory to save prediction lists')
     parser.add_argument('--modeldir', default='../saved_model/',
-                        help='Path to a directory to save trained models.')
+                        help='Path to a directory to save trained models')
     return parser.parse_args()
 
 
@@ -284,7 +284,7 @@ def compute_list_emb(glist):
     return np.sum(concatenated_mat * gene_weight, axis=0) / np.clip(np.sum(gene_weight), 1e-100, None)
 
 args = parse_args()
-cpdlist_file, target_file, sig_file, perttype, emb_go, emb_archs4 = args.cpdlist_file, args.target_file, args.sig_file, args.perttype, args.emb_go, args.emb_archs4
+cpdlist_file, target_file, sig_file, perttype, emb_go, emb_archs4, outdir, modeldir = args.cpdlist_file, args.target_file, args.sig_file, args.perttype, args.emb_go, args.emb_archs4, args.outdir, args.modeldir 
 
 with open(emb_archs4, mode='r') as infile:
     reader = csv.reader(infile)
@@ -391,12 +391,9 @@ for idx in pert_sig.index:
 sigvec_all = np.array(sigvec_all)
 
 cpd_list = []
-fr = open(cpdlist_file)
-while True:
-    line = fr.readline()
-    if not line:
-        break
-    cpd_list.append(line.split('\n')[0])
+with open(cpdlist_file) as fr:
+    for line in fr:
+        cpd_list.append(line.split('\n')[0] + '@')
 fr.close()
 part = []
 for testpar in range(0, 5):
