@@ -17,30 +17,24 @@ python l1000_model.py -h
 Before using the script, the following files need to be prepared.
 1. Path to a file that lists the compounds for cross validation (`--cpdlist_file`)
 2. Path to a file containing target annotations of compounds (`--target_file`)
+    By default, we will use Broad's compound target annotations.
 3. Path to a file containing L1000 gene signatures (`--sig_file`)
 4. Perturbagen type of gene signatures to use (`--perttype`)
-
     Choose target gene signatures of `shRNA` perturbation or `cDNA` perturbation to use.
-
 5. Gene embeddings learned from GO annotations (`--emb_go`)
-
     By default, this will be the gene embeddings already-trained from Gene Ontology annotations saved in the data folder.
-
 6. Gene embeddings learned from archs4 gene expression experiments (`--emb_archs4`)
-
     By default, this will be the gene embeddings already-trained from gene lists derived from ARCHS4 gene expression experiments saved in the data folder.
-
 7. Path to a directory to save the predicted target ranking lists (`--outdir`)
 8. Path to a directory to save trained models (`--modeldir`)
 
 ### Output
-1. Learned models weights will be saved in the specified `--modeldir`
-2. For each perturbagen type (shRNA or cDNA), a target ranking list will be saved for each compound in each cell line, named as `compoundID@cellline_perturbagen.txt`
-
+1. Learned model weights will be saved in the specified `--modeldir`
+2. For each perturbagen type (shRNA or cDNA), a target ranking list will be saved in the specified `--outdir` for each compound in each cell line, named as `compoundID@cellline_perturbagen.txt`
     Each file contains three columns, the first column lists the ID of genes, the second column indicates the rankings of genes, the last column indicates the predicted scores of the model for the compound gene pair. The higher the ranking, the more likely the gene will be targeted by the compound in the cell line.
 
 ### Test pretrained models on other compounds
-
+For each perturbagen type (shRNA or cDNA), three models trained on all the Broad's
 
 ## Training gene embeddings and generate signature embeddings
 Use the `gene_vec_model.py` script to train . Run the command to see the arguments need to be specified:
