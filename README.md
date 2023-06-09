@@ -1,5 +1,5 @@
-# FEGS
-Functional Embedding of Gene Signatures
+# FRoGS
+Functional Representation of Gene Signatures
 
 ## Dependencies
 - python 3.7.3</br>
