@@ -8,6 +8,15 @@ Functional Representation of Gene Signatures
 - scikit-learn 1.0.1</br>
 - tensorflow 2.0.0</br>
 
+## Operating system
+The software has been tested on the Rocky Linux 8.8 system.
+
+## Installation
+Run the command to download the package:
+```
+git clone https://github.com/chenhcs/FRoGS.git
+```
+
 ## Training models for predicting compound targets using L1000 gene signatures
 This section describes how to use pretrained gene embeddings to train a model that predict target genes of compounds from L1000 perturbagen gene signatures. Example data are provided in the data folder. To do this, run the `l1000_model.py` script. Cross validation will be performed for a list of compounds that have target annotations. There are a number of arguments that need to be specified for the script. Run the command under the src directory to see these options:
 ```
@@ -43,7 +52,7 @@ Before using the script, the following files need to be prepared.
     Each file contains three columns, the first column lists gene IDs, the second column indicates the rankings of genes, the last column indicates the predicted scores of the model for the compound gene pair. The higher the ranking, the more likely the gene will be targeted by the compound in the cell line.
 
 ### Test pretrained models on other compounds
-For each perturbagen type (shRNA or cDNA), three models trained on all the Broad's target annotations are provided in the `saved_model` directory. Run the following script under the src directory to make predictions for compounds without Broad's target annotations combining the three models.
+For each perturbagen type (shRNA or cDNA), three models trained on all the Broad's target annotations are provided in the `saved_model` directory. Run the following script under the src directory to reproduce the predictions for compounds without Broad's target annotations combining the three models.
 ```
 python l1000_inference.py
 ```
