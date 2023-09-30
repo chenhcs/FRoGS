@@ -83,3 +83,6 @@ Use the following command to run examples of generating gene signature embedding
 ```
 python signature_embedding.py
 ```
+
+## Run logistic regression (LR) models for aggregating multiple predictions
+The code for the LR model and the trained LR model for Model L, Q, LQ, NCI60, and PSP are provided in the `LR_model` directory.
