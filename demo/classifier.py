@@ -21,6 +21,7 @@ with open('data/tissue_specific.txt') as fr:
         else:
             tisse_gene[items[0]] = tisse_gene[items[0]].union(set(items[1:]))
 
+#Filter out genes that appear in more than one tissue
 common = set([])
 for tissue1 in tisse_gene:
     for tissue2 in tisse_gene:
@@ -30,10 +31,13 @@ for tissue1 in tisse_gene:
 for tissue in tisse_gene:
     tisse_gene[tissue] -= common
 
+#Filter out genes that do not appear in our embedding
+print('Number of genes:')
 for tissue in tisse_gene:
     tisse_gene[tissue] = tisse_gene[tissue].intersection(set(go_emb.keys()).union(archs4_emb.keys()))
     print(tissue, len(tisse_gene[tissue]))
 
+#Assign embeddings and labels to genes
 X = []
 y = []
 for i,tissue in enumerate(tisse_gene):
@@ -45,16 +49,21 @@ for i,tissue in enumerate(tisse_gene):
         if gid in archs4_emb:
             emb[256:]=archs4_emb[gid]
         X.append(emb)
-        y.append(str(i))
+        y.append(tissue)
 
 X = np.array(X)
 y = np.array(y)
 
+#Generate the t-SNE plot
 model = TSNE(n_components=2, random_state=0)
 tsne_pj = model.fit_transform(X)
-plt.scatter(tsne_pj[:,0], tsne_pj[:,1], c=[int(c) for c in y], cmap='tab20b')
+for tissue in tisse_gene:
+    idx = np.where(y == tissue)[0]
+    plt.scatter(tsne_pj[idx,0], tsne_pj[idx,1], label=tissue)
+plt.legend()
 plt.savefig('tsne.png')
 
+#Build the random forest classifer. Using 80% genes for training and 20% genes for test
 index = np.arange(len(X))
 np.random.shuffle(index)
 train_index = index[:int(0.8 * len(X))]
@@ -62,6 +71,6 @@ test_index = index[int(0.8 * len(X)):]
 clf = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=0)
 clf.fit(X[train_index], y[train_index])
 y_hat = clf.predict(X[test_index])
-print(y_hat)
-print(y[test_index])
-print((y_hat==y[test_index]).sum()/len(y_hat))
+print('Groundtruth', y_hat)
+print('Predictions', y[test_index])
+print('Accuracy on test:', (y_hat==y[test_index]).sum()/len(y_hat))

@@ -29,6 +29,8 @@ def parse_args():
                         help='Gene embeddings learned from GO annotations')
     parser.add_argument('--emb_archs4', default='../data/gene_vec_archs4_256.csv',
                         help='Gene embeddings learned from archs4 gene expression experiments')
+    parser.add_argument('--epochs', default=60,
+                        help='Number of training epochs')
     parser.add_argument('--outdir', default='../results/',
                         help='Path to a directory to save prediction lists')
     parser.add_argument('--modeldir', default='../saved_model/',
@@ -285,7 +287,7 @@ def compute_list_emb(glist):
     return np.sum(concatenated_mat * gene_weight, axis=0) / np.clip(np.sum(gene_weight), 1e-100, None)
 
 args = parse_args()
-cpdlist_file, target_file, sig_file, perttype, emb_go, emb_archs4, outdir, modeldir = args.cpdlist_file, args.target_file, args.sig_file, args.perttype, args.emb_go, args.emb_archs4, args.outdir, args.modeldir
+cpdlist_file, target_file, sig_file, perttype, emb_go, emb_archs4, epochs, outdir, modeldir = args.cpdlist_file, args.target_file, args.sig_file, args.perttype, args.emb_go, args.emb_archs4, args.epochs, args.outdir, args.modeldir
 
 with open(emb_archs4, mode='r') as infile:
     reader = csv.reader(infile)
@@ -416,7 +418,6 @@ for testpar in range(0, 5):
     print('#Train cpd:', len(cpd_train), '#Test cpd:', len(cpd_test))
     input_l, input_r, train_label = prepare_data(cpd_train, testpar)
 
-    epochs = 40
     classifier= get_model(fp_dim)
     optimizer = keras.optimizers.Adam()
     classifier.compile(

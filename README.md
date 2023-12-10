@@ -1,5 +1,5 @@
 # FRoGS
-Functional Representation of Gene Signatures
+We introduced a form of "word2vec" for bioinformatics named Functional Representation of Gene Signature (FRoGS), where FRoGS vectors encode known human genes' functions. FRoGS has pretrained gene embeddings and can generate embeddings of gene signatures based on the embeddings of individual genes.
 
 ## Dependencies
 - python 3.7.3</br>
@@ -16,9 +16,16 @@ Run the command to download the package:
 ```
 git clone https://github.com/chenhcs/FRoGS.git
 ```
+## Using FRoGS gene embeddings to classify tissue specific genes
+In this demonstration, we showcase an application of FRoGS gene embeddings for the classification of tissue-specific genes.
+
+Within the `demo/data/` directory, we have provided three gene lists, each containing tissue-specific genes associated with a specific tissue. In the subsequent script located in the `demo/` directory, we assign a vector representation to each gene using our pre-trained FRoGS gene embeddings. Then a t-SNE plot is generated to visualize the clustering patterns of genes based on their vector representations. Finally in this example, we build a random forest classifier to predict the tissue specificity of genes based on their FRoGS vector representations.
+```
+python classifier.py
+```
 
 ## Training models for predicting compound targets using L1000 gene signatures
-This section describes how to use pretrained gene embeddings to train a model that predict target genes of compounds from L1000 perturbagen gene signatures. Example data are provided in the data folder. To do this, run the `l1000_model.py` script. Cross validation will be performed for a list of compounds that have target annotations. There are a number of arguments that need to be specified for the script. Run the command under the src directory to see these options:
+This section describes how to use pretrained gene embeddings to train a model that predict target genes of compounds from L1000 perturbagen gene signatures. Example data are provided in the data folder. To do this, run the command `python l1000_model.py` within the `src/` directory. Cross validation will be performed for a list of compounds that have target annotations. There are a number of arguments that need to be specified for the script. Run the command under the src directory to see these options:
 ```
 python l1000_model.py -h
 ```
@@ -41,7 +48,7 @@ Before using the script, the following files need to be prepared.
 6. Gene embeddings learned from archs4 gene expression experiments (`--emb_archs4`)
 
     By default, this will be the gene embeddings already-trained from gene lists derived from ARCHS4 gene expression experiments saved in the data folder.
-
+6. Number of training epochs (`--epochs`)
 7. Path to a directory to save the predicted target ranking lists (`--outdir`)
 8. Path to a directory to save trained models (`--modeldir`)
 
