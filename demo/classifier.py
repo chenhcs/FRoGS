@@ -16,10 +16,7 @@ tissue_gene = {}
 with open('data/tissue_specific.txt') as fr:
     for line in fr:
         items = line.split('\n')[0].split(',')
-        if items[0] not in tissue_gene:
-            tissue_gene[items[0]] = set(items[1:])
-        else:
-            tissue_gene[items[0]] = tissue_gene[items[0]].union(set(items[1:]))
+        tissue_gene[items[0]] = set(items[1:])
 
 #Filter out genes that appear in more than one tissue
 common = set([])
