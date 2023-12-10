@@ -12,36 +12,36 @@ with open('../data/gene_vec_archs4_256.csv', mode='r') as infile:
     reader = csv.reader(infile)
     archs4_emb = {rows[0]:np.array(rows[1:], dtype=np.float32) for rows in reader}
 
-tisse_gene = {}
+tissue_gene = {}
 with open('data/tissue_specific.txt') as fr:
     for line in fr:
         items = line.split('\n')[0].split(',')
-        if items[0] not in tisse_gene:
-            tisse_gene[items[0]] = set(items[1:])
+        if items[0] not in tissue_gene:
+            tissue_gene[items[0]] = set(items[1:])
         else:
-            tisse_gene[items[0]] = tisse_gene[items[0]].union(set(items[1:]))
+            tissue_gene[items[0]] = tissue_gene[items[0]].union(set(items[1:]))
 
 #Filter out genes that appear in more than one tissue
 common = set([])
-for tissue1 in tisse_gene:
-    for tissue2 in tisse_gene:
+for tissue1 in tissue_gene:
+    for tissue2 in tissue_gene:
         if tissue1 != tissue2:
-            common = common.union(tisse_gene[tissue1].intersection(tisse_gene[tissue2]))
+            common = common.union(tissue_gene[tissue1].intersection(tissue_gene[tissue2]))
 
-for tissue in tisse_gene:
-    tisse_gene[tissue] -= common
+for tissue in tissue_gene:
+    tissue_gene[tissue] -= common
 
 #Filter out genes that do not appear in our embedding
 print('Number of genes:')
-for tissue in tisse_gene:
-    tisse_gene[tissue] = tisse_gene[tissue].intersection(set(go_emb.keys()).union(archs4_emb.keys()))
-    print(tissue, len(tisse_gene[tissue]))
+for tissue in tissue_gene:
+    tissue_gene[tissue] = tissue_gene[tissue].intersection(set(go_emb.keys()).union(archs4_emb.keys()))
+    print(tissue, len(tissue_gene[tissue]))
 
 #Assign embeddings and labels to genes
 X = []
 y = []
-for i,tissue in enumerate(tisse_gene):
-    for gid in tisse_gene[tissue]:
+for i,tissue in enumerate(tissue_gene):
+    for gid in tissue_gene[tissue]:
         emb = np.zeros(512)
         if gid in go_emb:
             emb[:256]=go_emb[gid]
@@ -57,7 +57,7 @@ y = np.array(y)
 #Generate the t-SNE plot
 model = TSNE(n_components=2, random_state=0)
 tsne_pj = model.fit_transform(X)
-for tissue in tisse_gene:
+for tissue in tissue_gene:
     idx = np.where(y == tissue)[0]
     plt.scatter(tsne_pj[idx,0], tsne_pj[idx,1], label=tissue)
 plt.legend()
