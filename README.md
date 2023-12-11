@@ -19,7 +19,9 @@ git clone https://github.com/chenhcs/FRoGS.git
 ## Using FRoGS gene embeddings to classify tissue specific genes
 In this demonstration, we showcase a simple application of FRoGS gene embeddings for the classification of tissue-specific genes.
 
-Within the `demo/data/` directory, we have provided three gene lists, each containing tissue-specific genes associated with a specific tissue. In the subsequent script located in the `demo/` directory, we assign a vector representation to each gene using our pre-trained FRoGS gene embeddings. Then a t-SNE plot is generated to visualize the clustering patterns of genes based on their vector representations. Finally in this example, we build a random forest classifier to predict the tissue specificity of genes based on their FRoGS vector representations.
+Within the `demo/data/` directory, we have provided three gene lists, each containing tissue-specific genes (Entrez Gene IDs) associated with a specific tissue. In the subsequent script located in the `demo/` directory, we assign a vector representation to each gene using our pre-trained FRoGS gene embeddings. Then a t-SNE plot is generated to visualize the clustering patterns of genes based on their vector representations.
+![alt text](https://github.com/chenhcs/FRoGS/blob/main/demo/tsne.png)
+Finally in this example, we build a random forest classifier to predict the tissue specificity of genes based on their FRoGS vector representations.
 ```
 python classifier.py
 ```
