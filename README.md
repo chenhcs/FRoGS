@@ -17,14 +17,15 @@ Run the command to download the package:
 git clone https://github.com/chenhcs/FRoGS.git
 ```
 ## Using FRoGS gene embeddings to classify tissue specific genes
-In this demonstration, we showcase a simple application of FRoGS gene embeddings for the classification of tissue-specific genes.
-
-Within the `demo/data/` directory, we have provided three gene lists, each containing tissue-specific genes (Entrez Gene IDs) associated with a specific tissue. In the subsequent script located in the `demo/` directory, we assign a vector representation to each gene using our pre-trained FRoGS gene embeddings. Then a t-SNE plot is generated to visualize the clustering patterns of genes based on their vector representations.
-![alt text](https://github.com/chenhcs/FRoGS/blob/main/demo/tsne.png)
-Finally in this example, we build a random forest classifier to predict the tissue specificity of genes based on their FRoGS vector representations.
+In this demonstration, we showcase a simple application of FRoGS gene embeddings for the classification of tissue-specific genes. Run the command within the `demo/` initiate the demo:
 ```
 python classifier.py
 ```
+Within the `demo/data/` directory, we have provided three gene lists, each containing tissue-specific genes (Entrez Gene IDs) associated with a specific tissue. In the script `classifier.py`, we assign a vector representation to each gene using our pre-trained FRoGS gene embeddings. Then a t-SNE plot is generated to visualize the clustering patterns of genes based on their vector representations.
+![alt text](https://github.com/chenhcs/FRoGS/blob/main/demo/tsne.png)
+
+Finally in this example, we build a random forest classifier to predict the tissue specificity of genes based on their FRoGS vector representations.
+
 
 ## Training models for predicting compound targets using L1000 gene signatures
 This section describes how to use pretrained gene embeddings to train a model that predict target genes of compounds from L1000 perturbagen gene signatures. Example data are provided in the data folder. To do this, run the command `python l1000_model.py` within the `src/` directory. Cross validation will be performed for a list of compounds that have target annotations. There are a number of arguments that need to be specified for the script. Run the command under the src directory to see these options:
