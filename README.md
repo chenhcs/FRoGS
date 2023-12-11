@@ -17,7 +17,7 @@ Run the command to download the package:
 git clone https://github.com/chenhcs/FRoGS.git
 ```
 ## Using FRoGS gene embeddings to classify tissue specific genes
-In this demonstration, we showcase a simple application of FRoGS gene embeddings for the classification of tissue-specific genes. Run the command within the `demo/` initiate the demo:
+In this demonstration, we showcase a simple application of FRoGS gene embeddings for the classification of tissue-specific genes. Run the command within the `demo/` directory to initiate the demo:
 ```
 python classifier.py
 ```
