@@ -33,7 +33,7 @@ This section describes how to use pretrained gene embeddings to train a model th
 python l1000_model.py -h
 ```
 ### Input format
-Before using the script, the following files need to be prepared.
+Before using the script, the directories of following files and parameters need to be specified.
 1. Path to a file that lists the compounds for cross validation (`--cpdlist_file`)
 2. Path to a file containing target annotations of compounds (`--target_file`)
 
@@ -51,9 +51,9 @@ Before using the script, the following files need to be prepared.
 6. Gene embeddings learned from archs4 gene expression experiments (`--emb_archs4`)
 
     By default, this will be the gene embeddings already-trained from gene lists derived from ARCHS4 gene expression experiments saved in the data folder.
-6. Number of training epochs (`--epochs`)
-7. Path to a directory to save the predicted target ranking lists (`--outdir`)
-8. Path to a directory to save trained models (`--modeldir`)
+7. Number of training epochs (`--epochs`)
+8. Path to a directory to save the predicted target ranking lists (`--outdir`)
+9. Path to a directory to save trained models (`--modeldir`)
 
 ### Output
 1. Learned model weights will be saved in the specified `--modeldir`
