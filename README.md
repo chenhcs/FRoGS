@@ -16,8 +16,8 @@ Run the command to download the package:
 ```
 git clone https://github.com/chenhcs/FRoGS.git
 ```
-## Using FRoGS gene embeddings to classify tissue specific genes
-In this demonstration, we showcase a simple application of FRoGS gene embeddings for the classification of tissue-specific genes. Run the command within the `demo/` directory to initiate the demo:
+## Using FRoGS embeddings to classify tissue specific genes and gene signatures
+In this demonstration, we first showcase a simple application of FRoGS gene embeddings for the classification of tissue-specific genes. Run the command within the `demo/` directory to initiate the demo:
 ```
 python classifier.py
 ```
@@ -25,6 +25,14 @@ Within the `demo/data/` directory, we have provided three gene lists, each conta
 ![alt text](https://github.com/chenhcs/FRoGS/blob/main/demo/tsne.png)
 
 Finally in this example, we build a random forest classifier to predict the tissue specificity of genes based on their FRoGS vector representations.
+
+Next, FRoGS gene embeddings are used to produce vector representations for gene signatures acquired from three different tissues. These vector representations of gene signatures are then mapped onto a t-SNE plot to illustrate the clustering patterns of gene signatures originating from different tissues.
+![alt text](https://github.com/chenhcs/FRoGS/blob/main/demo/tsne_gene_signature.png)
+
+Execute the command below within the `demo/` directory to run the demo:
+```
+python gene_sig_representation.py
+```
 
 
 ## Training models for predicting compound targets using L1000 gene signatures
