@@ -28,12 +28,12 @@ Within the `demo/data/` directory, we have provided three gene lists, each conta
 
 Finally in this example, we build a random forest classifier to predict the tissue specificity of genes based on their FRoGS vector representations. The model achieves an accuracy of 80% (&plusmn;5%), a significant improvement compared to the accuracy of only 29% (&plusmn;3%) achieved when the model is trained on one-hot encodings.
 
-Next, FRoGS gene embeddings are used to produce vector representations for gene signatures acquired from three different tissues. These vector representations of gene signatures are then mapped onto a t-SNE plot to illustrate the clustering patterns of gene signatures originating from different tissues. The sum of one-hot encodings of genes in each gene list is also used to represent the gene list for comparison.
+In the second example, FRoGS gene embeddings are used to produce vector representations for gene signatures acquired from three different tissues. These vector representations of gene signatures are then mapped onto a t-SNE plot to illustrate the clustering patterns of gene signatures originating from different tissues. For comparison, the sum of one-hot encodings of genes in each gene list is also used to represent the gene lists.
 
 ![alt text](https://github.com/chenhcs/FRoGS/blob/main/demo/tsne_signature_FRoGS.png)
 ![alt text](https://github.com/chenhcs/FRoGS/blob/main/demo/tsne_signature_onehot.png)
 
-A random forest classifier is next trained on the representation of gene signatures to predict their tissue specificity. The model achieves perfect accuracy of 100% (&plusmn;0.4%) when trained on the FRoGS representations. In contrast, the accuracy drops to 85% (&plusmn;4%) when the model is trained on representations derived from one-hot gene encodings.
+A random forest classifier is next trained on the representation of gene signatures to predict their tissue specificity. The model achieves a remarkable accuracy of 100% (&plusmn;0.4%) when trained on the FRoGS representations. In contrast, the accuracy drops to 85% (&plusmn;4%) when the model is trained on representations derived from one-hot gene encodings.
 
 Execute the command below within the `demo/` directory to run the demo:
 ```
