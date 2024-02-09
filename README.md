@@ -22,12 +22,14 @@ In this demonstration, we first showcase a simple application of FRoGS gene embe
 python classifier.py
 ```
 Within the `demo/data/` directory, we have provided three gene lists, each containing tissue-specific genes (Entrez Gene IDs) associated with a specific tissue. In the script `classifier.py`, we assign a vector representation to each gene using our pre-trained FRoGS gene embeddings. Then a t-SNE plot is generated to visualize the clustering patterns of genes based on their vector representations. For comparison, we also employ one-hot encoding for each gene and utilize the t-SNE plot to visualize the genes in this alternate representation, as shown below.
+
 ![alt text](https://github.com/chenhcs/FRoGS/blob/main/demo/tsne_FRoGS.png)
 ![alt text](https://github.com/chenhcs/FRoGS/blob/main/demo/tsne_onehot.png)
 
 Finally in this example, we build a random forest classifier to predict the tissue specificity of genes based on their FRoGS vector representations. The model achieves an accuracy of 80% (&plusmn;5%), a significant improvement compared to the accuracy of only 29% (&plusmn;3%) achieved when the model is trained on one-hot encodings.
 
 Next, FRoGS gene embeddings are used to produce vector representations for gene signatures acquired from three different tissues. These vector representations of gene signatures are then mapped onto a t-SNE plot to illustrate the clustering patterns of gene signatures originating from different tissues. The sum of one-hot encodings of genes in each gene list is also used to represent the gene list for comparison.
+
 ![alt text](https://github.com/chenhcs/FRoGS/blob/main/demo/tsne_signature_FRoGS.png)
 ![alt text](https://github.com/chenhcs/FRoGS/blob/main/demo/tsne_signature_onehot.png)
 
