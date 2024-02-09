@@ -21,7 +21,7 @@ In this demonstration, we first showcase a simple application of FRoGS gene embe
 ```
 python classifier.py
 ```
-Within the `demo/data/` directory, we have provided three gene lists, each containing tissue-specific genes (Entrez Gene IDs) associated with a specific tissue. In the script `classifier.py`, we assign a vector representation to each gene using our pre-trained FRoGS gene embeddings. Then a t-SNE plot is generated to visualize the clustering patterns of genes based on their vector representations. For comparison, we also employ one-hot encoding for each gene and utilize the t-SNE plot to visualize the genes in this alternate representation, as shown below.
+Within the `demo/data/` directory, we have provided three gene lists, each containing tissue-specific genes (Entrez Gene IDs) associated with a specific tissue. In the script `classifier.py`, we assign a vector representation to each gene using our pre-trained FRoGS gene embeddings. Then a t-SNE plot is generated to visualize the clustering patterns of genes based on their vector representations. For comparison, we also employ one-hot encoding for each gene and utilize the t-SNE plot to visualize the genes. Clearly, there is no inherent similarity of tissue-specific genes in this alternate representation, as shown below.
 
 ![alt text](https://github.com/chenhcs/FRoGS/blob/main/demo/tsne_FRoGS.png)
 ![alt text](https://github.com/chenhcs/FRoGS/blob/main/demo/tsne_onehot.png)
