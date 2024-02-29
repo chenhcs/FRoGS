@@ -1,6 +1,8 @@
 # FRoGS
 We introduced a form of "word2vec" for bioinformatics named Functional Representation of Gene Signature (FRoGS), where FRoGS vectors encode known human genes' functions. FRoGS has pretrained gene embeddings and can generate embeddings of gene signatures based on the embeddings of individual genes.
 
+We unveil how FRoGS outshines other models in predicting compound targets. FRoGS can enable many general machine-learning utilities as exemplified in our [blog post](https://metascape.org/blog/?p=286).
+
 ## Dependencies
 - python 3.7.3</br>
 - numpy 1.17.3</br>
@@ -110,3 +112,12 @@ python signature_embedding.py
 
 ## Run logistic regression (LR) models for aggregating multiple predictions
 The code for the LR model and the trained LR model for Model L, Q, LQ, NCI60, and PSP are provided in the `LR_model` directory.
+
+## Citation
+If you find FRoGS is useful for your research, please cite the following paper:
+
+```
+Chen, H., King, F.J., Zhou, B. et al.
+Drug target prediction through deep learning functional representation of gene signatures.
+Nature Commun. 15, 1853 (2024). https://doi.org/10.1038/s41467-024-46089-y
+```
