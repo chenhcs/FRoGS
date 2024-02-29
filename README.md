@@ -1,7 +1,7 @@
 # FRoGS
 We introduced a form of "word2vec" for bioinformatics named Functional Representation of Gene Signature (FRoGS), where FRoGS vectors encode known human genes' functions. FRoGS has pretrained gene embeddings and can generate embeddings of gene signatures based on the embeddings of individual genes.
 
-We unveil how FRoGS outshines other models in predicting compound targets. FRoGS can enable many general machine-learning utilities as exemplified in our [blog post](https://metascape.org/blog/?p=286).
+In our [Nature Communications paper](https://github.com/chenhcs/FRoGS?tab=readme-ov-file#citation), we unveil how FRoGS outshines other models in predicting compound targets. FRoGS can enable many general machine-learning utilities as exemplified in our [blog post](https://metascape.org/blog/?p=286).
 
 ## Dependencies
 - python 3.7.3</br>
