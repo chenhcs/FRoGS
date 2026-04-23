@@ -3,7 +3,6 @@ import tensorflow as tf
 import gc
 from utils.random_walk import random_walk_w_restart as rwr
 from utils.sampling_util import rw_sampling
-from tensorflow.python.keras import backend as K
 from tensorflow.keras import layers, losses
 from tensorflow import keras
 from tensorflow.keras.models import Model

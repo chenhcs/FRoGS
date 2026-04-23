@@ -1,6 +1,14 @@
 #!/usr/bin/env python
-from __future__ import absolute_import
-from __future__ import print_function
+"""Parallel execution helpers for FRoGS.
+
+This module exposes :func:`map`, a drop-in parallel ``map``-style helper that
+is safe to use on modern Python (>=3.8) and macOS.
+
+The legacy :class:`MP`, :func:`parmap` and :func:`parprep` helpers are kept
+around for backwards compatibility with older FRoGS scripts but should be
+considered deprecated; new code should prefer :func:`map`.
+"""
+import concurrent.futures
 import multiprocessing
 import multiprocessing.pool
 import traceback
@@ -9,9 +17,39 @@ import time
 import random
 import sys
 import os
-from six.moves import range
 
-#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
+try:  # pragma: no cover - optional dependency
+    from tqdm.auto import tqdm as _tqdm
+except Exception:  # pragma: no cover - tqdm is optional
+    _tqdm = None
+
+
+def _get_mp_context():
+    """Return a multiprocessing context appropriate for the current platform.
+
+    Many FRoGS worker functions depend on module-level globals (e.g. the
+    ``go_emb`` / ``archs4_emb`` dictionaries in :mod:`src.l1000_model`) that
+    are populated at import time.  On macOS (Python >= 3.8) the default
+    start method is ``spawn`` which re-imports the module in a fresh
+    interpreter and therefore cannot see those runtime-populated globals,
+    which manifests as jobs that never return.  ``fork`` preserves the
+    parent state and is the only reliable choice on macOS for this
+    codebase; we fall back to the platform default if ``fork`` is
+    unavailable (e.g. Windows).
+    """
+    override = os.environ.get("FROGS_MP_START")
+    if override:
+        try:
+            return multiprocessing.get_context(override)
+        except ValueError:
+            pass
+    if sys.platform == "darwin":
+        try:
+            return multiprocessing.get_context("fork")
+        except ValueError:
+            pass
+    return multiprocessing.get_context()
+
 
 ## no longer needed. http://bytes.com/topic/python/answers/552476-why-cant-you-pickle-instancemethods
 ## This code enables static or instance methods to be pickled, therefore can be used in multiprocessing calls
@@ -373,57 +411,117 @@ def parprep(f=None, n_CPU=0, DEBUG=False):
 def proxy(f):
     return f
 
-def map(f, tasks, n_CPU=0, progress=False, min_interval=30):
-    """min_interval, do not report progress more frequent that 30 sec"""
-    if len(tasks)==0: return []
-    if n_CPU==0:
-        n_CPU=multiprocessing.cpu_count()
-    if n_CPU<=1:
-        if not progress:
-            return [ f(args) for args in tasks ]
-        else:
-            out=[]
-            pg=Progress(len(tasks))
-            i_start=time.time()
-            for i, args in enumerate(tasks):
-                out.append(f(args))
-                if (time.time()-i_start)>=min_interval or i==len(tasks)-1:
-                    pg.check(i+1)
-                    i_start=time.time()
-            return out
-    n_CPU=min(n_CPU, len(tasks))
-    pl=multiprocessing.Pool(n_CPU)
-    if progress:
-        # https://stackoverflow.com/questions/5666576/show-the-progress-of-a-python-multiprocessing-pool-map-call
-        out=[]
-        pg=Progress(len(tasks))
-        i_start=time.time()
-        #for i, _ in enumerate(pl.imap(f, tasks), 1):
-        for i, _ in enumerate(pl.imap(f, tasks)):
-            out.append(_)
-            #print(">>>", i, time.time(), i_start, time.time()-i_start)
-            if (time.time()-i_start)>=min_interval or i==len(tasks)-1:
-                pg.check(i+1)
-                i_start=time.time()
-    else:
-        out=pl.map(f, tasks)
-    pl.close()
-    pl.join()
+def _run_sequential(f, tasks, progress, min_interval):
+    if not progress:
+        return [f(args) for args in tasks]
+    if _tqdm is not None:
+        return [f(args) for args in _tqdm(tasks, desc="parallel.map", unit="task")]
+    out = []
+    pg = Progress(len(tasks))
+    i_start = time.time()
+    for i, args in enumerate(tasks):
+        out.append(f(args))
+        if (time.time() - i_start) >= min_interval or i == len(tasks) - 1:
+            pg.check(i + 1)
+            i_start = time.time()
     return out
 
-if __name__=="__main__":
+
+def map(f, tasks, n_CPU=0, progress=False, min_interval=30, timeout=None):
+    """Apply ``f`` to every element of ``tasks`` and return the results in order.
+
+    Parameters
+    ----------
+    f : callable
+        Top-level function that takes a single task argument.  Must be
+        picklable.
+    tasks : sequence
+        Input tasks.  Each element is passed to ``f``.
+    n_CPU : int, default 0
+        Number of worker processes to use.  ``0`` means
+        ``multiprocessing.cpu_count()``; ``1`` (or the env var
+        ``FROGS_N_CPU=1``) forces sequential execution.
+    progress : bool
+        If True, show a progress bar (``tqdm`` if available, otherwise a
+        periodic text update via :class:`Progress`).
+    min_interval : int
+        Minimum seconds between textual progress updates when ``tqdm`` is
+        unavailable.
+    timeout : float or None
+        If set, each individual task must complete within ``timeout``
+        seconds or a :class:`concurrent.futures.TimeoutError` is raised.
+    """
+    tasks = list(tasks)
+    if not tasks:
+        return []
+
+    env_override = os.environ.get("FROGS_N_CPU")
+    if env_override:
+        try:
+            n_CPU = int(env_override)
+        except ValueError:
+            pass
+
+    if n_CPU == 0:
+        n_CPU = multiprocessing.cpu_count()
+    if n_CPU <= 1:
+        return _run_sequential(f, tasks, progress, min_interval)
+
+    n_CPU = min(n_CPU, len(tasks))
+    ctx = _get_mp_context()
+
+    results = [None] * len(tasks)
+    errors = []
+    iterator = None
+    try:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=n_CPU, mp_context=ctx) as executor:
+            future_to_idx = {executor.submit(f, task): idx for idx, task in enumerate(tasks)}
+            iterator = concurrent.futures.as_completed(future_to_idx, timeout=timeout)
+            if progress and _tqdm is not None:
+                iterator = _tqdm(iterator, total=len(tasks), desc="parallel.map", unit="task")
+
+            pg = Progress(len(tasks)) if (progress and _tqdm is None) else None
+            last_report = time.time()
+            completed = 0
+            for fut in iterator:
+                idx = future_to_idx[fut]
+                try:
+                    results[idx] = fut.result()
+                except Exception as exc:  # noqa: BLE001 - we re-raise aggregated below
+                    errors.append((idx, exc, traceback.format_exc()))
+                completed += 1
+                if pg is not None and (
+                    (time.time() - last_report) >= min_interval or completed == len(tasks)
+                ):
+                    pg.check(completed)
+                    last_report = time.time()
+    except KeyboardInterrupt:
+        # Ensure workers are torn down promptly on Ctrl-C.
+        raise
+
+    if errors:
+        first_idx, first_exc, first_tb = errors[0]
+        msg_lines = [
+            f"parallel.map: {len(errors)} task(s) raised exceptions.",
+            f"First failure was task index {first_idx}: {first_exc!r}",
+            first_tb,
+        ]
+        raise RuntimeError("\n".join(msg_lines))
+
+    return results
+
+
+if __name__ == "__main__":
 
     def calc(X):
-        """parameter should be just one tuple/list
-        The first thing is to flatten the tuple/list to individual variables
-        This is an example function calculate the sum from a to b"""
-        a,b=X # the parameter is (start, end) passed in as tasks
-        sum=0
-        for i in range(a, b+1):
-            sum+=i
-            time.sleep(0.5)
-        return sum
+        """Example worker: sum of integers from a to b inclusive."""
+        a, b = X
+        total = 0
+        for i in range(a, b + 1):
+            total += i
+            time.sleep(0.01)
+        return total
 
-    tasks=[(i,i+30) for i in range(10)]
-    out=map(calc, tasks, n_CPU=2, progress=True, min_interval=5)
+    tasks = [(i, i + 30) for i in range(10)]
+    out = map(calc, tasks, n_CPU=2, progress=True, min_interval=5)
     print(out)

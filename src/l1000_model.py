@@ -5,15 +5,23 @@ import os
 import glob
 import math
 import csv
+import warnings
 import tensorflow as tf
 from utils import parallel
-from tensorflow.python.keras import backend as K
+from utils.io_utils import read_csv_auto, validate_required_files, ensure_dir
 from tensorflow.keras import layers, losses
 from tensorflow import keras
 from tensorflow.keras.models import Model
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import normalize
 import argparse
+
+if int(tf.__version__.split('.')[0]) < 2:
+    warnings.warn(
+        f"FRoGS requires TensorFlow >= 2.x (installed: {tf.__version__}); "
+        "behaviour is undefined on older versions.",
+        RuntimeWarning,
+    )
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train l1000 model')
@@ -52,7 +60,7 @@ def get_model(fp_dim, hid_dim = 2048):
 
     merge = layers.Multiply()([denseout_cpd, denseout_target])
     denseclassifier = keras.Sequential([
-        layers.Dense(hid_dim/4),
+        layers.Dense(hid_dim // 4),
         layers.BatchNormalization(),
         layers.ReLU(),
         layers.Dense(1)
@@ -289,6 +297,20 @@ def compute_list_emb(glist):
 args = parse_args()
 cpdlist_file, target_file, sig_file, perttype, emb_go, emb_archs4, epochs, outdir, modeldir = args.cpdlist_file, args.target_file, args.sig_file, args.perttype, args.emb_go, args.emb_archs4, args.epochs, args.outdir, args.modeldir
 
+# Validate all required inputs up-front so the user learns about every
+# missing file at once rather than one failure at a time.
+ok, missing = validate_required_files([cpdlist_file, target_file, sig_file, emb_go, emb_archs4])
+if not ok:
+    sys.stderr.write(
+        "ERROR: the following required input files could not be found\n"
+        "(a .gz counterpart was also tried for each):\n  - "
+        + "\n  - ".join(missing)
+        + "\n"
+    )
+    sys.exit(2)
+ensure_dir(outdir)
+ensure_dir(modeldir)
+
 with open(emb_archs4, mode='r') as infile:
     reader = csv.reader(infile)
     archs4_emb = {rows[0]:np.array(rows[1:], dtype=np.float32) for rows in reader}
@@ -298,7 +320,7 @@ with open(emb_go, mode='r') as infile:
     go_emb = {rows[0]:np.array(rows[1:], dtype=np.float32) for rows in reader}
 
 mean_std_dict_go, mean_std_dict_archs4 = gene_sim_mean_std()
-t_target=pd.read_csv(target_file)
+t_target = read_csv_auto(target_file)
 cpd2target={}
 target_gene_id = t_target.Broad_target_gene_id.tolist()
 
@@ -330,7 +352,7 @@ print('Average tragets per compound:', np.mean(target_num))
 
 #read gene signature file
 id2sig = {}
-t_sig=pd.read_csv(sig_file)
+t_sig = read_csv_auto(sig_file)
 pert_sig = []
 tasks = []
 cnt = 0
@@ -354,7 +376,7 @@ for idx in t_sig.index:
         tasks.append((l1k, S_hit))
         all_cl.add(cl)
 
-id_map=pd.read_csv('../data/term2gene_id.csv')
+id_map = read_csv_auto('../data/term2gene_id.csv')
 term2geneid = {}
 for idx in id_map.index:
     term2geneid[id_map.loc[idx, 'term_name']] = str(id_map.loc[idx, 'gene_id'])
@@ -384,7 +406,7 @@ print('Numer of cell lines:', len(all_cl))
 
 print("Compute embeddings of gene signatures...")
 sig2vec_dic = {}
-rslt=parallel.map(get_vec, tasks, n_CPU=10, progress=False)
+rslt = parallel.map(get_vec, tasks, n_CPU=10, progress=True)
 for dic in rslt:
     for k in dic:
         sig2vec_dic[k] = dic[k]
