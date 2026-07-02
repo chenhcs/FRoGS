@@ -98,11 +98,20 @@ python gene_vec_model.py -h
     A TAB separated file where each line starts with a GO/ARCHS4 category ID, following by the number of genes in the category, following by the genes associated with the category separated by comma.
 
 3. Path to save the learned embeddings (`--outfile`)
+4. Path to a directory to save or load a logistic regression (LR) model (`--LR_model`, optional)
+
+    When specified, after training the gene embeddings, a logistic regression model is trained on the learned embeddings to predict whether a pair of genes is associated (using the element-wise product of the two genes' embeddings as features). The model is saved as `gene_pair_lr.pkl` inside this directory. If a model already exists at that path, it is loaded instead of being retrained. This argument requires `scikit-learn`.
+
+5. Path to the demo directory (`--demo`, optional)
+
+    When specified, a copy of the learned embeddings file (`--outfile`) is exported into this directory so the demo scripts can consume it. The file is placed in the `data/` subdirectory when one exists, otherwise directly in the given directory.
 
 ### Output
 1. A gene embedding file will be saved as the specified `--outfile`.
 
     A comma separated file where each line indicates a gene embedding. The first item in the line is the gene ID, following by a list of float numbers which is the embedding representation of the gene.
+2. If `--LR_model` is specified, the trained LR model is saved as `gene_pair_lr.pkl` in that directory.
+3. If `--demo` is specified, a copy of the embeddings file is written into the demo directory (its `data/` subdirectory when present).
 
 ### Generate gene signature embeddings
 Use the following command to run examples of generating gene signature embeddings from embeddings of individual genes:
